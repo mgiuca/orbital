@@ -720,9 +720,9 @@ class TestOrbitalElements(unittest.TestCase):
         self.assertAlmostEqual(orbit.M, radians(90))
 
     def test_from_state_vector_zero(self):
-        # Circular orbit.
+        # Degenerate orbit with r=0 and v=0.
         R = Position(0, 0, 0)
-        V = Velocity(0, 10000, 0)
+        V = Velocity(0, 0, 0)
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', category=RuntimeWarning)
