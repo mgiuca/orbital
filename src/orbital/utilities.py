@@ -389,7 +389,10 @@ def vector_angle(v1, v2):
 
     The result will always be between 0 and pi inclusive.
     """
-    return acos(dot(v1, v2) / (norm(v1) * norm(v2)))
+    # The parameter to acos is clamped to the range [-1.0, 1.0]. If this is not
+    # done, rounding errors can make the value slightly below -1.0 or above 1.0,
+    # resulting in nan. These should simply result in pi and 0.0, respectively.
+    return acos(np.clip(dot(v1, v2) / (norm(v1) * norm(v2)), -1.0, 1.0))
 
 
 # Objects for package

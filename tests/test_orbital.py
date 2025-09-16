@@ -769,24 +769,19 @@ class TestOrbitalElements(unittest.TestCase):
         R = Position(0, -1767766.952966369, -1767766.952966369)
         V = Velocity(16703.901013, 0, 0)
 
-        # XXX Currently crashes due to the above bug.
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            self.assertRaises(
-                AssertionError, KeplerianElements.from_state_vector, R, V, body=earth
-            )
-        # numpy.testing.assert_almost_equal(orbit.r, R)
-        # numpy.testing.assert_almost_equal(orbit.v, V)
-        # self.assertAlmostEqual(orbit.a, 10000000.0, places=2)
-        # self.assertAlmostEqual(orbit.e, 0.75)
-        # self.assertAlmostEqual(orbit.i, radians(45))
-        # self.assertAlmostEqual(orbit.raan, 0.0)
-        # self.assertAlmostEqual(orbit.arg_pe, radians(270.0))
-        # self.assertAlmostEqual(orbit.M0, 0.0)
+        orbit = KeplerianElements.from_state_vector(R, V, body=earth)
+        numpy.testing.assert_almost_equal(orbit.r, R)
+        numpy.testing.assert_almost_equal(orbit.v, V)
+        self.assertAlmostEqual(orbit.a, 10000000.0, places=2)
+        self.assertAlmostEqual(orbit.e, 0.75)
+        self.assertAlmostEqual(orbit.i, radians(45))
+        self.assertAlmostEqual(orbit.raan, 0.0)
+        self.assertAlmostEqual(orbit.arg_pe, radians(270.0))
+        self.assertAlmostEqual(orbit.M0, 0.0)
 
-        # self.assertAlmostEqual(orbit.ref_epoch, J2000)
-        # self.assertEqual(orbit.body, earth)
-        # self.assertAlmostEqual(orbit.t, 0.0)
+        self.assertAlmostEqual(orbit.ref_epoch, J2000)
+        self.assertEqual(orbit.body, earth)
+        self.assertAlmostEqual(orbit.t, 0.0)
 
     def test_from_state_vector_iss(self):
         # ISS (Zarya) from 2008-09-20 12:25:40
@@ -861,7 +856,10 @@ class TestOrbitalElements(unittest.TestCase):
                 Velocity(0, 11811.441678561141, 11811.441678561141),
             ),
             # Elliptical inclined, arg_pe > 180°.
-            # (Position(0, -1767766.952966369, -1767766.952966369), Velocity(16703.901013, 0, 0)),
+            (
+                Position(0, -1767766.952966369, -1767766.952966369),
+                Velocity(16703.901013, 0, 0),
+            ),
         ]
 
         for i, (r, v) in enumerate(CASES):
