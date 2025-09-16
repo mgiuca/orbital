@@ -305,7 +305,7 @@ def elements_from_state_vector(r, v, mu):
         else:
             # Argument of periapsis is angle between
             # node and eccentricity vectors.
-            arg_pe = acos(dot(n, ev) / (norm(n) * norm(ev)))
+            arg_pe = vector_angle(n, ev)
 
     if abs(e) < SMALL_NUMBER:
         if i_small:
@@ -317,7 +317,7 @@ def elements_from_state_vector(r, v, mu):
         else:
             # True anomaly is angle between node
             # vector and position vector.
-            f = acos(dot(n, r) / (norm(n) * norm(r)))
+            f = vector_angle(n, r)
             if dot(n, v) > 0:
                 f = mod(-f, 2 * pi)
     else:
@@ -326,8 +326,7 @@ def elements_from_state_vector(r, v, mu):
 
         # True anomaly is angle between eccentricity
         # vector and position vector.
-        f = acos(dot(ev, r) / (norm(ev) * norm(r)))
-
+        f = vector_angle(ev, r)
         if dot(r, v) < 0:
             f = mod(-f, 2 * pi)
 
@@ -383,6 +382,14 @@ def mod(x, y):
 def divmod(x, y):
     """Return quotient and remainder from division of x by y."""
     return (floor(x / y), mod(x, y))
+
+
+def vector_angle(v1, v2):
+    """Return the unsigned minimum angle between two XyzVectors [rad].
+
+    The result will always be between 0 and pi inclusive.
+    """
+    return acos(dot(v1, v2) / (norm(v1) * norm(v2)))
 
 
 # Objects for package
