@@ -761,6 +761,30 @@ class TestOrbitalElements(unittest.TestCase):
         self.assertEqual(orbit.body, earth)
         self.assertAlmostEqual(orbit.t, 0.0)
 
+    def test_from_state_vector_elliptical_almost_flat(self):
+        # Elliptical orbit, at periapsis, arg_pe = 90°.
+        # Almost zero inclination, but Z is very slightly negative.
+        # Regression test for https://github.com/RazerM/orbital/issues/44
+        # The issue is that the inclination is so small, it is considered to be
+        # a non-inclined case, but the eccentricity vector's Z coordinate is
+        # very slightly negative, which would flip arg_pe erroneously.
+        R = Position(0, 2500000, -0.01)
+        V = Velocity(-16703.901013, 0, 0)
+
+        orbit = KeplerianElements.from_state_vector(R, V, body=earth)
+        numpy.testing.assert_almost_equal(orbit.r, R, decimal=2)
+        numpy.testing.assert_almost_equal(orbit.v, V, decimal=2)
+        self.assertAlmostEqual(orbit.a, 10000000.0, places=2)
+        self.assertAlmostEqual(orbit.e, 0.75)
+        self.assertAlmostEqual(orbit.i, 0.0)
+        # The absolute value of raan and arg_pe doesn't matter, because i is
+        # small. All that matters is that they are 90° apart.
+        # The current implementation always sets raan = 0 when i is small.
+        self.assertAlmostEqual(orbit.raan, 0.0)
+        self.assertAlmostEqual(orbit.arg_pe, radians(90.0))
+        self.assertAlmostEqual(orbit.M0, 0.0)
+        self.assertAlmostEqual(orbit.t, 0.0)
+
     def test_from_state_vector_f_at_periapsis(self):
         # Elliptical orbit, inclined, at periapsis.
         # Regression test for https://github.com/RazerM/orbital/issues/40.
@@ -837,6 +861,12 @@ class TestOrbitalElements(unittest.TestCase):
             (Position(10000000, 0, 0), Velocity(0, 0, 6313.4811435530555)),
             # Elliptical flat (e=0.75), prograde.
             (Position(2500000, 0, 0), Velocity(0, 16703.901013, 0)),
+            # Elliptical flat (e=0.75), prograde, arg_pe = 90°, at periapsis.
+            (Position(0, 2500000, 0), Velocity(-16703.901013, 0, 0)),
+            # Elliptical almost-flat (e=0.75, i ~= 0 but Z slightly positive).
+            (Position(0, 2500000, 0.000000001), Velocity(-16703.901013, 0, 0)),
+            # Elliptical almost-flat (e=0.75, i ~= 0 but Z slightly negative).
+            (Position(0, 2500000, -0.000000001), Velocity(-16703.901013, 0, 0)),
             # Elliptical flat (e=0.75), arg_pe > 180°.
             (Position(0, -2500000, 0), Velocity(16703.901013, 0, 0)),
             # Elliptical flat (e=0.75), retrograde.

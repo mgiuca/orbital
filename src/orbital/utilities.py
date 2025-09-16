@@ -306,6 +306,8 @@ def elements_from_state_vector(r, v, mu):
             # Argument of periapsis is angle between
             # node and eccentricity vectors.
             arg_pe = vector_angle(n, ev)
+            if ev.z < 0:
+                arg_pe = mod(-arg_pe, 2 * pi)
 
     if abs(e) < SMALL_NUMBER:
         if i_small:
@@ -321,9 +323,6 @@ def elements_from_state_vector(r, v, mu):
             if dot(n, v) > 0:
                 f = mod(-f, 2 * pi)
     else:
-        if ev.z < 0:
-            arg_pe = mod(-arg_pe, 2 * pi)
-
         # True anomaly is angle between eccentricity
         # vector and position vector.
         f = vector_angle(ev, r)
