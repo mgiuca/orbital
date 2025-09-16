@@ -749,9 +749,7 @@ class TestOrbitalElements(unittest.TestCase):
         self.assertAlmostEqual(orbit.e, 0.75)
         self.assertAlmostEqual(orbit.i, 0.0)
         self.assertAlmostEqual(orbit.raan, 0.0)
-        # XXX This should really be 0, but from_state_vector does not properly
-        # mod 2*pi, so it sometimes returns exactly 2*pi.
-        self.assertAlmostEqual(orbit.arg_pe, radians(360))
+        self.assertAlmostEqual(orbit.arg_pe, 0.0)
         self.assertAlmostEqual(orbit.M0, radians(90))
         self.assertAlmostEqual(orbit.t, 0.0)
         self.assertAlmostEqual(orbit.M, radians(90))
