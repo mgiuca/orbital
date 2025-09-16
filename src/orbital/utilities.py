@@ -293,9 +293,14 @@ def elements_from_state_vector(r, v, mu):
         if n.y < 0:
             raan = mod(-raan, 2 * pi)
 
-        # Argument of periapsis is angle between
-        # node and eccentricity vectors.
-        arg_pe = acos(dot(n, ev) / (norm(n) * norm(ev)))
+        if abs(e) < SMALL_NUMBER:
+            # For circular orbits, place periapsis
+            # at ascending node by convention
+            arg_pe = 0
+        else:
+            # Argument of periapsis is angle between
+            # node and eccentricity vectors.
+            arg_pe = acos(dot(n, ev) / (norm(n) * norm(ev)))
 
     if abs(e) < SMALL_NUMBER:
         if abs(i) < SMALL_NUMBER:

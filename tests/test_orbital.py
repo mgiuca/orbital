@@ -700,20 +700,14 @@ class TestOrbitalElements(unittest.TestCase):
         R = Position(-RADIUS * 0.5 * sqrt(2), 0, RADIUS * 0.5 * sqrt(2))
         V = Velocity(0, -sqrt(earth.mu / RADIUS), 0)
 
-        with warnings.catch_warnings():
-            # XXX This has a warning for dividing by zero.
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            orbit = KeplerianElements.from_state_vector(R, V, body=earth)
-        # XXX: r, v and arg_pe are nan due to a bug in from_state_vector.
-        # This happens for a perfect circle, but doesn't happen in
-        # test_from_state_vector_circular for some reason.
-        # numpy.testing.assert_almost_equal(orbit.r, R)
-        # numpy.testing.assert_almost_equal(orbit.v, V)
+        orbit = KeplerianElements.from_state_vector(R, V, body=earth)
+        numpy.testing.assert_almost_equal(orbit.r, R)
+        numpy.testing.assert_almost_equal(orbit.v, V)
         self.assertAlmostEqual(orbit.a, RADIUS)
         self.assertAlmostEqual(orbit.e, 0.0)
         self.assertAlmostEqual(orbit.i, radians(45))
         self.assertAlmostEqual(orbit.raan, radians(90))
-        # self.assertAlmostEqual(orbit.arg_pe, 0.0)
+        self.assertAlmostEqual(orbit.arg_pe, 0.0)
         self.assertAlmostEqual(orbit.M0, radians(90))
 
         self.assertAlmostEqual(orbit.ref_epoch, J2000)
@@ -832,15 +826,27 @@ class TestOrbitalElements(unittest.TestCase):
             # Circular flat, retrograde.
             # (Position(10000000, 0, 0), Velocity(0, -6313.4811435530555, 0)),
             # Circular inclined, prograde.
-            # (Position(10000000, 0, 0), Velocity(0, 4464.305329499764, 4464.305329499764)),
+            (
+                Position(10000000, 0, 0),
+                Velocity(0, 4464.305329499764, 4464.305329499764),
+            ),
             # Circular inclined, prograde (raan 90°, M0 90°).
-            # (Position(-7071067.811865476, 0, 7071067.811865476), Velocity(0, -6313.4811435530555, 0)),
+            (
+                Position(-7071067.811865476, 0, 7071067.811865476),
+                Velocity(0, -6313.4811435530555, 0),
+            ),
             # Circular inclined, raan > 180°.
-            # (Position(0, -10000000, 0), Velocity(4464.305329499764, 0, 4464.305329499764)),
+            (
+                Position(0, -10000000, 0),
+                Velocity(4464.305329499764, 0, 4464.305329499764),
+            ),
             # Circular inclined, f > 180°.
-            # (Position(0, -7071067.811865476, -7071067.811865476), Velocity(6313.4811435530555, 0, 0)),
+            (
+                Position(0, -7071067.811865476, -7071067.811865476),
+                Velocity(6313.4811435530555, 0, 0),
+            ),
             # Circular polar.
-            # (Position(10000000, 0, 0), Velocity(0, 0, 6313.4811435530555)),
+            (Position(10000000, 0, 0), Velocity(0, 0, 6313.4811435530555)),
             # Elliptical flat (e=0.75), prograde.
             (Position(2500000, 0, 0), Velocity(0, 16703.901013, 0)),
             # Elliptical flat (e=0.75), arg_pe > 180°.
