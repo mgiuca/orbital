@@ -672,26 +672,19 @@ class TestOrbitalElements(unittest.TestCase):
         R = Position(RADIUS, 0, 0)
         V = Velocity(0, -sqrt(earth.mu / RADIUS), 0)
 
-        # XXX This erroneously generates warnings and raises an assertion, due
-        # to internal values being NaN.
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            self.assertRaises(
-                AssertionError, KeplerianElements.from_state_vector, R, V, body=earth
-            )
-        # The expected values, after this bug is fixed:
-        # numpy.testing.assert_almost_equal(orbit.r, R)
-        # numpy.testing.assert_almost_equal(orbit.v, V)
-        # self.assertAlmostEqual(orbit.a, RADIUS)
-        # self.assertAlmostEqual(orbit.e, 0.0)
-        # self.assertAlmostEqual(orbit.i, radians(180))
-        # self.assertAlmostEqual(orbit.raan, 0.0)
-        # self.assertAlmostEqual(orbit.arg_pe, 0.0)
-        # self.assertAlmostEqual(orbit.M0, 0.0)
+        orbit = KeplerianElements.from_state_vector(R, V, body=earth)
+        numpy.testing.assert_almost_equal(orbit.r, R)
+        numpy.testing.assert_almost_equal(orbit.v, V)
+        self.assertAlmostEqual(orbit.a, RADIUS)
+        self.assertAlmostEqual(orbit.e, 0.0)
+        self.assertAlmostEqual(orbit.i, radians(180))
+        self.assertAlmostEqual(orbit.raan, 0.0)
+        self.assertAlmostEqual(orbit.arg_pe, 0.0)
+        self.assertAlmostEqual(orbit.M0, 0.0)
 
-        # self.assertAlmostEqual(orbit.ref_epoch, J2000)
-        # self.assertEqual(orbit.body, earth)
-        # self.assertAlmostEqual(orbit.t, 0.0)
+        self.assertAlmostEqual(orbit.ref_epoch, J2000)
+        self.assertEqual(orbit.body, earth)
+        self.assertAlmostEqual(orbit.t, 0.0)
 
     def test_from_state_vector_inclined(self):
         # Inclined circular orbit, 1/4 of the way around.
@@ -824,7 +817,7 @@ class TestOrbitalElements(unittest.TestCase):
             # Circular flat, f > 180°.
             (Position(0, -10000000, 0), Velocity(6313.4811435530555, 0, 0)),
             # Circular flat, retrograde.
-            # (Position(10000000, 0, 0), Velocity(0, -6313.4811435530555, 0)),
+            (Position(10000000, 0, 0), Velocity(0, -6313.4811435530555, 0)),
             # Circular inclined, prograde.
             (
                 Position(10000000, 0, 0),
@@ -852,7 +845,11 @@ class TestOrbitalElements(unittest.TestCase):
             # Elliptical flat (e=0.75), arg_pe > 180°.
             (Position(0, -2500000, 0), Velocity(16703.901013, 0, 0)),
             # Elliptical flat (e=0.75), retrograde.
-            # (Position(2500000, 0, 0), Velocity(0, -16703.901013, 0)),
+            (Position(2500000, 0, 0), Velocity(0, -16703.901013, 0)),
+            # Elliptical flat (e=0.75), retrograde, arg_pe = 90°, at periapsis.
+            (Position(0, -2500000, 0), Velocity(-16703.901013, 0, 0)),
+            # Elliptical flat, retrograde, arg_pe = 90°, at apoapsis.
+            (Position(0, -2500000, 0), Velocity(-10000.0, 0, 0)),
             # Elliptical flat (e=0.75), f > 180°.
             (
                 Position(-13255776.4031414, -5408888.899183, 0),

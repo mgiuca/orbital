@@ -271,8 +271,9 @@ def elements_from_state_vector(r, v, mu):
     # Inclination is the angle between the angular
     # momentum vector and its z component.
     i = acos(h.z / norm(h))
+    i_small = abs(i) < SMALL_NUMBER or abs(i - pi) < SMALL_NUMBER
 
-    if abs(i) < SMALL_NUMBER:
+    if i_small:
         # For non-inclined orbits, raan is undefined;
         # set to zero by convention
         raan = 0
@@ -285,7 +286,11 @@ def elements_from_state_vector(r, v, mu):
             # eccentricity vector and its x component.
             arg_pe = acos(ev.x / norm(ev))
             if ev.y < 0:
-                arg_pe = mod(-arg_pe, 2 * pi)
+                arg_pe = -arg_pe
+            # If plane is upside down, arg_pe needs to be inverted.
+            if abs(i) > pi * 0.5:
+                arg_pe = -arg_pe
+            arg_pe = mod(arg_pe, 2 * pi)
     else:
         # Right ascension of ascending node is the angle
         # between the node vector and its x component.
@@ -303,7 +308,7 @@ def elements_from_state_vector(r, v, mu):
             arg_pe = acos(dot(n, ev) / (norm(n) * norm(ev)))
 
     if abs(e) < SMALL_NUMBER:
-        if abs(i) < SMALL_NUMBER:
+        if i_small:
             # True anomaly is angle between position
             # vector and its x component.
             f = acos(r.x / norm(r))
